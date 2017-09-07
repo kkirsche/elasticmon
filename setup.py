@@ -29,7 +29,7 @@ setup(
     long_description=long_description,
 
     # The project's main homepage.
-    url='https://github.com/pypa/sampleproject',
+    url='https://github.com/kkirsche/elasticmon',
 
     # Author details
     author='Kevin Kirsche',
