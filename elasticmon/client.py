@@ -16,11 +16,14 @@ class ElasticmonClient(object):
         logger (:obj:`logging.Logger`): Class logger.
     """
 
-    def __init__(self, verbosity=2, hosts=[]):
+    def __init__(self, verbosity=2, hosts=[], environment=''):
         """Initialize a new ElasticmonClient instance.
 
         Args:
             hosts (list[str]): List of Elasticsearch hosts to connect to.
+            verbosity (int): The level at which to log, higher numbers offer
+                more logging.
+            environment (str): The environment this is logging in.
 
         Returns:
             None
@@ -28,6 +31,7 @@ class ElasticmonClient(object):
         disable_warnings()
         self.es_client = Elasticsearch(hosts)
         self.verbosity = verbosity
+        self.environment = environment
         self.logger = self.setup_logger()
 
     def setup_logger(self):
@@ -95,7 +99,10 @@ class ElasticmonClient(object):
         """
         self.logger.debug(
             "start ElasticmonClient.print_cluster_health_flattened")
-        fields = ['application=elasticmon', 'data_type=cluster_health']
+        fields = [
+            'application=elasticmon', 'data_type=cluster_health',
+            'environment={env}'.format(env=self.environment)
+        ]
         self.print_flattened(j=j, fields=fields)
         self.logger.debug("end ElasticmonClient.print_cluster_health_flattened")
 
@@ -114,10 +121,16 @@ class ElasticmonClient(object):
         for node in node_names:
             fields = [
                 'node={node}'.format(node=node), 'application=elasticmon',
-                'data_type=node_stats'
+                'data_type=node_stats', 'environment={env}'.format(
+                    env=self.environment)
             ]
             self.print_flattened(j=j['nodes'][node], fields=fields)
         self.logger.debug("end ElasticmonClient.print_cluster_health_flattened")
+
+    def chunks(self, l, n):
+        """Yield successive n-sized chunks from l."""
+        for i in range(0, len(l), n):
+            yield l[i:i + n]
 
     def print_flattened(self, j, fields=['application=elasticmon']):
         """Print the flattened data
@@ -125,11 +138,14 @@ class ElasticmonClient(object):
         Args:
             j (dict): The dictionary that should be flattened.
         """
-        syslog_line = fields
+        syslog_line = []
         self.logger.debug("start ElasticmonClient.print_flattened")
         flat = flatten(j)
         for k, v in list(flat.items()):
             syslog_line.append('{key}={value}'.format(key=k, value=v))
             print('{key}: {value}'.format(key=k, value=v))
-        self.logger.info(' '.join(syslog_line))
+
+        for output_row in self.chunks(syslog_line, 10):
+            output_row += fields
+            self.logger.info(' '.join(output_row))
         self.logger.debug("end ElasticmonClient.print_flattened")
