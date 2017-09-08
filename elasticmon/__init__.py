@@ -33,5 +33,8 @@ def main():
     chealth = mon_client.cluster_health()
     mon_client.print_cluster_health_flattened(j=chealth)
 
+    cstats = mon_client.cluster_stats()
+    mon_client.print_cluster_stats_flattened(j=cstats)
+
     nstats = mon_client.node_stats()
     mon_client.print_node_stats_flattened(j=nstats)

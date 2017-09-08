@@ -80,6 +80,17 @@ class ElasticmonClient(object):
         self.logger.debug("end ElasticmonClient.cluster_health")
         return chealth
 
+    def cluster_stats(self):
+        """Retrieve the cluster statistics.
+
+        Returns:
+            dict: the cluster state information
+        """
+        self.logger.debug("start ElasticmonClient.cluster_stats")
+        cstats = self.es_client.cluster.stats()
+        self.logger.debug("end ElasticmonClient.cluster_stats")
+        return cstats
+
     def node_stats(self):
         """Retrieve the node statistics information.
 
@@ -105,6 +116,21 @@ class ElasticmonClient(object):
         ]
         self.print_flattened(j=j, fields=fields)
         self.logger.debug("end ElasticmonClient.print_cluster_health_flattened")
+
+    def print_cluster_stats_flattened(self, j):
+        """Print the flattened data
+
+        Args:
+            j (dict): The dictionary that should be flattened.
+        """
+        self.logger.debug(
+            "start ElasticmonClient.print_cluster_stats_flattened")
+        fields = [
+            'application=elasticmon', 'data_type=cluster_stats',
+            'environment={env}'.format(env=self.environment)
+        ]
+        self.print_flattened(j=j, fields=fields)
+        self.logger.debug("end ElasticmonClient.print_cluster_stats_flattened")
 
     def print_node_stats_flattened(self, j):
         """Print the flattened data
