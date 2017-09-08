@@ -36,5 +36,8 @@ def main():
     cstats = mon_client.cluster_stats()
     mon_client.print_cluster_stats_flattened(j=cstats)
 
+    istats = mon_client.indices_stats()
+    mon_client.print_indices_stats_flattened(j=istats)
+
     nstats = mon_client.node_stats()
     mon_client.print_node_stats_flattened(j=nstats)

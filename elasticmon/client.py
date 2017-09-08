@@ -91,6 +91,17 @@ class ElasticmonClient(object):
         self.logger.debug("end ElasticmonClient.cluster_stats")
         return cstats
 
+    def indices_stats(self):
+        """Retrieve the index statistics.
+
+        Returns:
+            dict: the index statistics
+        """
+        self.logger.debug("start ElasticmonClient.indices_stats")
+        istats = self.es_client.indices.stats(index='_all')
+        self.logger.debug("end ElasticmonClient.indices_stats")
+        return istats
+
     def node_stats(self):
         """Retrieve the node statistics information.
 
@@ -131,6 +142,21 @@ class ElasticmonClient(object):
         ]
         self.print_flattened(j=j, fields=fields)
         self.logger.debug("end ElasticmonClient.print_cluster_stats_flattened")
+
+    def print_indices_stats_flattened(self, j):
+        """Print the flattened data
+
+        Args:
+            j (dict): The dictionary that should be flattened.
+        """
+        self.logger.debug(
+            "start ElasticmonClient.print_indices_stats_flattened")
+        fields = [
+            'application=elasticmon', 'data_type=indices_stats',
+            'environment={env}'.format(env=self.environment)
+        ]
+        self.print_flattened(j=j, fields=fields)
+        self.logger.debug("end ElasticmonClient.print_indices_stats_flattened")
 
     def print_node_stats_flattened(self, j):
         """Print the flattened data
